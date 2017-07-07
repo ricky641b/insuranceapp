@@ -1,29 +1,54 @@
 package insurance.abhi.abhiinsuranceapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import insurance.abhi.abhiinsuranceapp.adapters.PostsAdapter;
+import insurance.abhi.abhiinsuranceapp.helperDB.DBHelper;
+import insurance.abhi.abhiinsuranceapp.helpers.RecyclerItemClickListener;
+import insurance.abhi.abhiinsuranceapp.models.Post;
 
 public class MainActivity extends AppCompatActivity {
 
+    @BindView(R.id.postsRecyclerView)
+    RecyclerView mPostsRecyclerView;
+    List<Post> mPosts = new ArrayList<>();
+    PostsAdapter mPostsAdapter;
+    private static int REQUEST_CODE = 1;
+    private static int DETAIL_ACTIVITY_REQUEST_CODE = 2;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        ButterKnife.bind(this);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                launchNewEntryActivity();
+            }
+        });
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                initRecyclerView();
             }
         });
     }
@@ -48,5 +73,55 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+    void launchNewEntryActivity()
+    {
+        Intent newIntent = new Intent(MainActivity.this,NewEntryActivity.class);
+        startActivityForResult(newIntent,REQUEST_CODE);
+    }
+    void initDB()
+    {
+        // Get singleton instance of database
+        DBHelper databaseHelper = DBHelper.getInstance(this);
+        // Get all posts from database
+        mPosts = databaseHelper.getAllPosts();
+        mPostsAdapter.setList(mPosts);
+    }
+    void initRecyclerView()
+    {
+        mPostsAdapter = new PostsAdapter(mPosts);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
+        mPostsRecyclerView.setLayoutManager(mLayoutManager);
+        mPostsRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        mPostsRecyclerView.setAdapter(mPostsAdapter);
+        initDB();
+        mPostsRecyclerView.addOnItemTouchListener((new RecyclerItemClickListener(MainActivity.this, mPostsRecyclerView, new RecyclerItemClickListener.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Post post = mPosts.get(position);
+                openDetailActivity(post.getId());
+            }
+
+            @Override
+            public void onItemLongClick(View view, int position) {
+
+            }
+        })));
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d("CODE","CODE " + resultCode);
+        if (requestCode == REQUEST_CODE && resultCode == 1)
+        {
+            initDB();
+        }
+    }
+    void openDetailActivity(String id)
+    {
+        Intent detailIntent = new Intent(MainActivity.this,DetailActivity.class);
+        detailIntent.putExtra("id",id);
+        startActivityForResult(detailIntent,DETAIL_ACTIVITY_REQUEST_CODE);
     }
 }

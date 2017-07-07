@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">Abhi Insurance App</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_backup">Backup/Restore</string>
+    <string name="title_activity_new_entry">New Entry</string>
+    <string name="name_placeholder">Party Name</string>
+    <string name="amount_placeholder">Loan Amount (₹)</string>
+    <string name="interest_placeholder">Interest (%)</string>
+    <string name="time_placeholder">Time (months)</string>
+    <string name="calculate">Calculate</string>
+    <string name="title_activity_detail">DetailActivity</string>
 </resources>
