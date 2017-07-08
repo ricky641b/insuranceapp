@@ -5,15 +5,21 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.cloudrail.si.CloudRail;
+import com.cloudrail.si.services.Dropbox;
+
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,19 +41,20 @@ public class BackupActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         checkPermission();
         restoreFromFolder();
+        CloudRail.setAppKey("5960e2b9435ed97ff95c0276");
     }
 
     @OnClick(R.id.backupfolder)void backupFolder()
     {
         if (checkIfAlreadyhavePermission())
         {
-            DBBackup.exportDB(getApplicationContext());
-            Toast.makeText(this,"Backup created at "+ DBBackup.backupName + "/",Toast.LENGTH_SHORT).show();
+            String path = DBBackup.exportDB(getApplicationContext());
+            Toast.makeText(this,"Backup created at "+ path,Toast.LENGTH_SHORT).show();
         }
     }
     @OnClick(R.id.backupDropbox) void backupToDropbox()
     {
-
+        new DropboxUploadTask().execute();
     }
     @OnClick(R.id.restorefolder) void restoreFromFolder()
     {
@@ -154,5 +161,35 @@ public class BackupActivity extends AppCompatActivity {
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
     }
+    private class DropboxUploadTask extends AsyncTask<Void, Void, Void> {
 
+        @Override
+        protected Void doInBackground(Void... params) {
+            while (!isCancelled()) {
+
+                Dropbox service = new Dropbox(
+                        getApplicationContext(),
+                        "tqi92xvjokofrb7",
+                        "v4faixtkr99p8kp"
+                );
+                String path =  DBBackup.exportDB(getApplicationContext());
+                FileInputStream backupFileStream = DBBackup.getInputStream(getApplicationContext());
+                if(backupFileStream!=null) {
+                    service.upload(
+                            path,
+                            backupFileStream,
+                            1024L,
+                            true
+                    );
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            Log.d("DONE","DONE");
+        }
+    }
 }

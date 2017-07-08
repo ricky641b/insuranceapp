@@ -24,7 +24,7 @@ public class DBBackup {
     private static boolean operationStatus = true;
     private static String appName = "Abhi's Loan App";
 
-    public static void exportDB(Context ctx) {
+    public static String exportDB(Context ctx) {
         try {
             File sd = new File(BASE_BACKUP_PATH.getAbsolutePath());
             File currentDB = ctx.getDatabasePath("loanDB");
@@ -43,13 +43,14 @@ public class DBBackup {
                         dst.transferFrom(src, 0, src.size());
                         src.close();
                         dst.close();
+                        return "/" + backupDBPath;
                         //Toast.makeText(getApplicationContext(), "Backup is successful to SD card", Toast.LENGTH_SHORT).show();
                     }
                 }
         } catch (Exception e) {
             Log.e("Error",e.getLocalizedMessage());
         }
-
+        return "n/a";
     }
 
     public static void importDB(Context ctx,String backupPath) {
@@ -72,6 +73,22 @@ public class DBBackup {
         } catch (Exception e) {
             Log.e("Error",e.getLocalizedMessage());
         }
+    }
+    public static FileInputStream getInputStream(Context ctx) {
+        try {
+            FileInputStream dst;
+            File currentDB = ctx.getDatabasePath("loanDB");
+                if (currentDB.exists()) {
+
+                    dst = new FileInputStream(currentDB);
+                    return dst;
+                    //Toast.makeText(getApplicationContext(), "Database Restored successfully", Toast.LENGTH_SHORT).show();
+                }
+
+        } catch (Exception e) {
+            Log.e("Error",e.getLocalizedMessage());
+        }
+        return null;
     }
     public static List<String> backupFiles()
     {
