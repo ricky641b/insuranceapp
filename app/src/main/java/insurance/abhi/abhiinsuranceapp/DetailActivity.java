@@ -1,6 +1,8 @@
 package insurance.abhi.abhiinsuranceapp;
 
+import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -21,6 +23,7 @@ import butterknife.ButterKnife;
 import insurance.abhi.abhiinsuranceapp.adapters.AmountAdapter;
 import insurance.abhi.abhiinsuranceapp.helperDB.DBHelper;
 import insurance.abhi.abhiinsuranceapp.helpers.CustomDialog;
+import insurance.abhi.abhiinsuranceapp.helpers.RecyclerItemClickListener;
 import insurance.abhi.abhiinsuranceapp.models.Post;
 import insurance.abhi.abhiinsuranceapp.models.RcdAmount;
 
@@ -122,6 +125,18 @@ public class DetailActivity extends AppCompatActivity {
         loanDetailsRecyclerView.setLayoutManager(mLayoutManager);
         loanDetailsRecyclerView.setItemAnimator(new DefaultItemAnimator());
         loanDetailsRecyclerView.setAdapter(amountsAdapter);
+        loanDetailsRecyclerView.addOnItemTouchListener((new RecyclerItemClickListener(DetailActivity.this, loanDetailsRecyclerView, new RecyclerItemClickListener.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+
+            }
+
+            @Override
+            public void onItemLongClick(View view, int position) {
+                RcdAmount rcdAmount = amountsList.get(position);
+                deleteEntryConfirmation(rcdAmount.getId());
+            }
+        })));
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(loanDetailsRecyclerView.getContext(),
                 DividerItemDecoration.VERTICAL);
         loanDetailsRecyclerView.addItemDecoration(dividerItemDecoration);
@@ -137,5 +152,30 @@ public class DetailActivity extends AppCompatActivity {
                 showList();
             }
         });
+    }
+    void deleteEntryConfirmation(final String amountId)
+    {
+
+        AlertDialog.Builder builder;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            builder = new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert);
+        } else {
+            builder = new AlertDialog.Builder(this);
+        }
+        builder.setTitle("Delete entry")
+                .setMessage("Are you sure you want to delete this entry?")
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        databaseHelper.deleteMainEntry(amountId);
+                        showList();
+                    }
+                })
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // do nothing
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
     }
 }

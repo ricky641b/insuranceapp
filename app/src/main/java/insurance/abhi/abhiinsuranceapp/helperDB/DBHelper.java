@@ -339,6 +339,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return amounts;
     }
 
+
     public void deleteAllPostsAndUsers() {
         SQLiteDatabase db = getWritableDatabase();
         db.beginTransaction();
@@ -348,6 +349,33 @@ public class DBHelper extends SQLiteOpenHelper {
             db.setTransactionSuccessful();
         } catch (Exception e) {
             Log.d(TAG, "Error while trying to delete all posts and users");
+        } finally {
+            db.endTransaction();
+        }
+    }
+    public void deleteMainEntry(String postId) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.beginTransaction();
+        try {
+            // Order of deletions is important when foreign key relationships exist.
+            db.delete(TABLE_AMOUNTS, KEY_POST_AMOUNT_ID +  " = ?", new String[]{postId});
+            db.delete(TABLE_POSTS, KEY_POST_ID +  " = ?", new String[]{postId});
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            Log.d(TAG, "Error while trying to delete all posts");
+        } finally {
+            db.endTransaction();
+        }
+    }
+    public void deleteAmountGot(String amountId) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.beginTransaction();
+        try {
+            // Order of deletions is important when foreign key relationships exist.
+            db.delete(TABLE_AMOUNTS, KEY_AMOUNT_ID +  " = ?", new String[]{amountId});
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            Log.d(TAG, "Error while trying to delete all amounts");
         } finally {
             db.endTransaction();
         }

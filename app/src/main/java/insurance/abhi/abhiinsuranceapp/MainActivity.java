@@ -1,6 +1,9 @@
 package insurance.abhi.abhiinsuranceapp;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -29,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView mPostsRecyclerView;
     List<Post> mPosts = new ArrayList<>();
     PostsAdapter mPostsAdapter;
+    DBHelper databaseHelper;
     private static int REQUEST_CODE = 1;
     private static int DETAIL_ACTIVITY_REQUEST_CODE = 2;
     @Override
@@ -68,7 +72,8 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_backup) {
+            launchBackupActivity();
             return true;
         }
 
@@ -79,11 +84,20 @@ public class MainActivity extends AppCompatActivity {
         Intent newIntent = new Intent(MainActivity.this,NewEntryActivity.class);
         startActivityForResult(newIntent,REQUEST_CODE);
     }
+    void launchBackupActivity()
+    {
+        Intent newIntent = new Intent(MainActivity.this,BackupActivity.class);
+        startActivityForResult(newIntent,REQUEST_CODE);
+    }
     void initDB()
     {
         // Get singleton instance of database
-        DBHelper databaseHelper = DBHelper.getInstance(this);
+        databaseHelper = DBHelper.getInstance(this);
         // Get all posts from database
+        refreshList();
+    }
+    void refreshList()
+    {
         mPosts = databaseHelper.getAllPosts();
         mPostsAdapter.setList(mPosts);
     }
@@ -104,7 +118,8 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onItemLongClick(View view, int position) {
-
+                Post post = mPosts.get(position);
+                deleteEntryConfirmation(post.id);
             }
         })));
     }
@@ -123,5 +138,30 @@ public class MainActivity extends AppCompatActivity {
         Intent detailIntent = new Intent(MainActivity.this,DetailActivity.class);
         detailIntent.putExtra("id",id);
         startActivityForResult(detailIntent,DETAIL_ACTIVITY_REQUEST_CODE);
+    }
+    void deleteEntryConfirmation(final String postId)
+    {
+
+        AlertDialog.Builder builder;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            builder = new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert);
+        } else {
+            builder = new AlertDialog.Builder(this);
+        }
+        builder.setTitle("Delete entry")
+                .setMessage("Are you sure you want to delete this entry?")
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        databaseHelper.deleteMainEntry(postId);
+                        refreshList();
+                    }
+                })
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // do nothing
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
     }
 }
