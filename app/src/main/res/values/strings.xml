@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Abhi Insurance App</string>
+    <string name="app_name">Abhi\'s Loan App</string>
     <string name="action_backup">Backup/Restore</string>
     <string name="title_activity_new_entry">New Entry</string>
     <string name="name_placeholder">Party Name</string>

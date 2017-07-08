@@ -13,6 +13,7 @@ public class Post {
     public String partyName;
     public long totalAmount;
     public float interest;
+    public double amountTopay;
     public int time;
     public Date created_date;
 
@@ -62,6 +63,14 @@ public class Post {
 
     public void setCreated_date(Date created_date) {
         this.created_date = created_date;
+    }
+
+    public double getAmountTopay() {
+        return amountTopay;
+    }
+
+    public void setAmountTopay(long amountTopay) {
+        this.amountTopay = amountTopay;
     }
 
     public String getSimplifiedDate()

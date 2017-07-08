@@ -13,6 +13,7 @@ import java.util.List;
 
 import insurance.abhi.abhiinsuranceapp.helpers.Constants;
 import insurance.abhi.abhiinsuranceapp.models.Post;
+import insurance.abhi.abhiinsuranceapp.models.RcdAmount;
 
 import static android.content.ContentValues.TAG;
 
@@ -22,12 +23,12 @@ import static android.content.ContentValues.TAG;
 
 public class DBHelper extends SQLiteOpenHelper {
     // Database Info
-    private static final String DATABASE_NAME = "insuranceDB";
+    private static final String DATABASE_NAME = "loanDB";
     private static final int DATABASE_VERSION = 1;
 
     // Table Names
     private static final String TABLE_POSTS = "posts";
-//    private static final String TABLE_USERS = "users";
+    private static final String TABLE_AMOUNTS = "amounts";
 
     // Post Table Columns
     private static final String KEY_POST_ID = "id";
@@ -35,12 +36,14 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String KEY_POST_AMOUNT = "text";
     private static final String KEY_POST_PARTYNAME = "name";
     private static final String KEY_POST_INTEREST = "interest";
+    private static final String KEY_POST_TOTALAMOUNT = "total_amount";
     private static final String KEY_POST_TIME = "time";
     private static final String KEY_POST_CREATED = "created_date";
-    // User Table Columns
-//    private static final String KEY_USER_ID = "id";
-//    private static final String KEY_USER_NAME = "userName";
-//    private static final String KEY_USER_PROFILE_PICTURE_URL = "profilePictureUrl";
+    // Amount Table Columns
+    private static final String KEY_AMOUNT_ID = "id";
+    private static final String KEY_POST_AMOUNT_ID = "postId";
+    private static final String KEY_RECD_AMOUNT = "rcdAmount";
+    private static final String KEY_CREATED_ON = "created_date";
 
     private static DBHelper sInstance;
 
@@ -80,19 +83,21 @@ public class DBHelper extends SQLiteOpenHelper {
                 KEY_POST_PARTYNAME + " TEXT" + "," +
                 KEY_POST_AMOUNT + " INTEGER " + "," +
                 KEY_POST_INTEREST + " INTEGER " + "," +
+                KEY_POST_TOTALAMOUNT + " INTEGER " + ", " +
                 KEY_POST_TIME + " INTEGER " + "," +
                 KEY_POST_CREATED + " DEFAULT CURRENT_TIMESTAMP " +
                 ")";
 
-//        String CREATE_USERS_TABLE = "CREATE TABLE " + TABLE_USERS +
-//                "(" +
-//                KEY_USER_ID + " INTEGER PRIMARY KEY," +
-//                KEY_USER_NAME + " TEXT," +
-//                KEY_USER_PROFILE_PICTURE_URL + " TEXT" +
-//                ")";
+        String CREATE_AMOUNT_TABLE = "CREATE TABLE " + TABLE_AMOUNTS +
+                "(" +
+                KEY_AMOUNT_ID + " INTEGER PRIMARY KEY," +
+                KEY_POST_AMOUNT_ID + " TEXT ," +
+                KEY_RECD_AMOUNT + " INTEGER ," +
+                KEY_POST_CREATED + " DEFAULT CURRENT_TIMESTAMP" +
+                ")";
 
         db.execSQL(CREATE_POSTS_TABLE);
-
+        db.execSQL(CREATE_AMOUNT_TABLE);
     }
 
     // Called when the database needs to be upgraded.
@@ -103,6 +108,7 @@ public class DBHelper extends SQLiteOpenHelper {
         if (oldVersion != newVersion) {
             // Simplest implementation is to drop all old tables and recreate them
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_POSTS);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_AMOUNTS);
             onCreate(db);
         }
     }
@@ -123,10 +129,10 @@ public class DBHelper extends SQLiteOpenHelper {
             values.put(KEY_POST_PARTYNAME,post.partyName);
             values.put(KEY_POST_AMOUNT,post.totalAmount);
             values.put(KEY_POST_INTEREST,post.interest);
+            values.put(KEY_POST_TOTALAMOUNT,post.amountTopay);
             values.put(KEY_POST_TIME,post.time);
             values.put(KEY_POST_CREATED, Constants.getDateTime());
-           // values.put(KEY_POST_USER_ID_FK, userId);
-           // values.put(KEY_POST_TEXT, post.text);
+
 
             // Notice how we haven't specified the primary key. SQLite auto increments the primary key column.
             db.insertOrThrow(TABLE_POSTS, null, values);
@@ -137,7 +143,31 @@ public class DBHelper extends SQLiteOpenHelper {
             db.endTransaction();
         }
     }
+    public void addRecdAmount(long amountRecd,String postId) {
+        // Create and/or open the database for writing
+        SQLiteDatabase db = getWritableDatabase();
 
+        // It's a good idea to wrap our insert in a transaction. This helps with performance and ensures
+        // consistency of the database.
+        db.beginTransaction();
+        try {
+            // The user might already exist in the database (i.e. the same user created multiple posts).
+           // long userId = addOrUpdatePost(post);
+
+            ContentValues values = new ContentValues();
+            values.put(KEY_POST_AMOUNT_ID,postId);
+            values.put(KEY_RECD_AMOUNT,amountRecd);
+            values.put(KEY_CREATED_ON, Constants.getDateTime());
+
+            // Notice how we haven't specified the primary key. SQLite auto increments the primary key column.
+            db.insertOrThrow(TABLE_AMOUNTS, null, values);
+            db.setTransactionSuccessful();
+        } catch (Exception e) {
+            Log.d("TAG", "Error while trying to add post to database");
+        } finally {
+            db.endTransaction();
+        }
+    }
     // Insert or update a user in the database
     // Since SQLite doesn't support "upsert" we need to fall back on an attempt to UPDATE (in case the
     // user already exists) optionally followed by an INSERT (in case the user does not already exist).
@@ -156,6 +186,7 @@ public class DBHelper extends SQLiteOpenHelper {
             values.put(KEY_POST_PARTYNAME,post.partyName);
             values.put(KEY_POST_AMOUNT,post.totalAmount);
             values.put(KEY_POST_INTEREST,post.interest);
+            values.put(KEY_POST_TOTALAMOUNT,post.amountTopay);
             values.put(KEY_POST_TIME,post.time);
             values.put(KEY_POST_CREATED, Constants.getDateTime());
             //values.put(KEY_USER_PROFILE_PICTURE_URL, post.profilePictureUrl);
@@ -216,6 +247,7 @@ public class DBHelper extends SQLiteOpenHelper {
                     newPost.partyName = cursor.getString(cursor.getColumnIndex(KEY_POST_PARTYNAME));
                     newPost.totalAmount = cursor.getLong(cursor.getColumnIndex(KEY_POST_AMOUNT));
                     newPost.interest = cursor.getFloat(cursor.getColumnIndex(KEY_POST_INTEREST));
+                    newPost.amountTopay = cursor.getLong(cursor.getColumnIndex(KEY_POST_TOTALAMOUNT));
                     newPost.time = cursor.getInt(cursor.getColumnIndex(KEY_POST_TIME));
                     String dateStr = cursor.getString(cursor.getColumnIndex(KEY_POST_CREATED));
                     Date date = Constants.getDate(dateStr);
@@ -254,6 +286,7 @@ public class DBHelper extends SQLiteOpenHelper {
                     newPost.partyName = cursor.getString(cursor.getColumnIndex(KEY_POST_PARTYNAME));
                     newPost.totalAmount = cursor.getLong(cursor.getColumnIndex(KEY_POST_AMOUNT));
                     newPost.interest = cursor.getFloat(cursor.getColumnIndex(KEY_POST_INTEREST));
+                    newPost.amountTopay = cursor.getLong(cursor.getColumnIndex(KEY_POST_TOTALAMOUNT));
                     newPost.time = cursor.getInt(cursor.getColumnIndex(KEY_POST_TIME));
                     String dateStr = cursor.getString(cursor.getColumnIndex(KEY_POST_CREATED));
                     Date date = Constants.getDate(dateStr);
@@ -270,6 +303,42 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         return newPost;
     }
+
+    public List<RcdAmount> getAllRecdAmount(String postId) {
+        List<RcdAmount> amounts = new ArrayList<>();
+
+
+        // "getReadableDatabase()" and "getWriteableDatabase()" return the same object (except under low
+        // disk space scenarios)
+        SQLiteDatabase db = getReadableDatabase();
+        String usersSelectQuery = String.format("SELECT * FROM %s WHERE %s = ?",
+                TABLE_AMOUNTS, KEY_POST_AMOUNT_ID);
+        Cursor cursor = db.rawQuery(usersSelectQuery, new String[]{String.valueOf(postId)});
+        try {
+            if (cursor.moveToFirst()) {
+                do {
+                    RcdAmount rcdAmount = new RcdAmount();
+                    rcdAmount.id = cursor.getString(cursor.getColumnIndex(KEY_AMOUNT_ID));
+                    rcdAmount.receivedAmount = cursor.getLong(cursor.getColumnIndex(KEY_RECD_AMOUNT));
+                    String dateStr = cursor.getString(cursor.getColumnIndex(KEY_CREATED_ON));
+                    Date date = Constants.getDate(dateStr);
+                    if (date != null)
+                    {
+                        rcdAmount.createdDate = date;
+                    }
+                    amounts.add(rcdAmount);
+                } while(cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "Error while trying to get posts from database");
+        } finally {
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
+        }
+        return amounts;
+    }
+
     public void deleteAllPostsAndUsers() {
         SQLiteDatabase db = getWritableDatabase();
         db.beginTransaction();

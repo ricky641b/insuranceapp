@@ -1,11 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_margin="10dp"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="insurance.abhi.abhiinsuranceapp.DetailActivity"
     tools:showIn="@layout/activity_detail">
 
-</android.support.constraint.ConstraintLayout>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/dateLabel"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        tools:text="DATE: "
+        android:padding="5dp"
+        />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/partyNamelabel"
+        android:textSize="18sp"
+        android:padding="5dp"
+        tools:text="DATE: "
+        />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/loanDetailsLabel"
+        android:textSize="18sp"
+        android:padding="5dp"
+        tools:text="DATE: "
+        />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/rcdAmountLabel"
+        android:textSize="18sp"
+        android:padding="5dp"
+        tools:text="RCD AMOUNT: "
+        />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="5dp"
+        android:id="@+id/recyclerViewColumnLabel"
+        >
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Received Amount"
+            android:layout_weight="1"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            android:gravity="center_horizontal"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Date"
+            android:layout_weight="1"
+            android:textSize="17sp"
+            android:textStyle="bold"
+
+            android:gravity="center_horizontal"
+            />
+    </LinearLayout>
+    <android.support.v7.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/loanDetailsRecyclerView"
+        >
+
+    </android.support.v7.widget.RecyclerView>
+</LinearLayout>
