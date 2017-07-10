@@ -38,8 +38,10 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String KEY_POST_INTEREST = "interest";
     private static final String KEY_POST_TOTALAMOUNT = "total_amount";
     private static final String KEY_POST_TIME = "time";
-    private static final String KEY_POST_DATEON = "loan_date";
+    private static final String KEY_POST_DATESTARTON = "loan_start_date";
+    private static final String KEY_POST_DATEENDON = "loan_end_date";
     private static final String KEY_POST_CREATED = "created_date";
+    private static final String KEY_POST_STATUS = "loan_status";
     // Amount Table Columns
     private static final String KEY_AMOUNT_ID = "id";
     private static final String KEY_POST_AMOUNT_ID = "postId";
@@ -88,8 +90,10 @@ public class DBHelper extends SQLiteOpenHelper {
                 KEY_POST_AMOUNT + " INTEGER " + "," +
                 KEY_POST_INTEREST + " INTEGER " + "," +
                 KEY_POST_TOTALAMOUNT + " INTEGER " + ", " +
-                KEY_POST_TIME + " INTEGER " + "," +
-                KEY_POST_DATEON + " TEXT " + ", " +
+                KEY_POST_TIME + " INTEGER " + ", " +
+                KEY_POST_STATUS + " INTEGER " + ", " +
+                KEY_POST_DATESTARTON + " TEXT " + ", " +
+                KEY_POST_DATEENDON + " TEXT " + ", " +
                 KEY_POST_CREATED + " DEFAULT CURRENT_TIMESTAMP " +
                 ")";
 
@@ -139,7 +143,9 @@ public class DBHelper extends SQLiteOpenHelper {
             values.put(KEY_POST_INTEREST,post.interest);
             values.put(KEY_POST_TOTALAMOUNT,post.amountTopay);
             values.put(KEY_POST_TIME,post.time);
-            values.put(KEY_POST_DATEON,post.getSimplifiedDate());
+            values.put(KEY_POST_STATUS,0);
+            values.put(KEY_POST_DATESTARTON,post.getSimplifiedOnDate(post.getDateOn()));
+            values.put(KEY_POST_DATEENDON,post.getSimplifiedOnDate(post.getEndDate()));
             values.put(KEY_POST_CREATED, Constants.getDateTime());
 
 
@@ -193,14 +199,16 @@ public class DBHelper extends SQLiteOpenHelper {
 
         db.beginTransaction();
         try {
-            ;
+
             ContentValues values = new ContentValues();
             values.put(KEY_POST_PARTYNAME,post.partyName);
             values.put(KEY_POST_AMOUNT,post.totalAmount);
             values.put(KEY_POST_INTEREST,post.interest);
             values.put(KEY_POST_TOTALAMOUNT,post.amountTopay);
             values.put(KEY_POST_TIME,post.time);
-            values.put(KEY_POST_DATEON,post.getSimplifiedOnDate());
+            values.put(KEY_POST_STATUS,0);
+            values.put(KEY_POST_DATESTARTON,post.getSimplifiedOnDate(post.getDateOn()));
+            values.put(KEY_POST_DATEENDON,post.getSimplifiedOnDate(post.getEndDate()));
             values.put(KEY_POST_CREATED, Constants.getDateTime());
             //values.put(KEY_USER_PROFILE_PICTURE_URL, post.profilePictureUrl);
 
@@ -217,6 +225,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 try {
                     if (cursor.moveToFirst()) {
                         postId = cursor.getInt(0);
+
                         db.setTransactionSuccessful();
                     }
                 } finally {
@@ -237,6 +246,32 @@ public class DBHelper extends SQLiteOpenHelper {
         return postId;
     }
 
+    public void updatePostStatus(int status,String postId) {
+        // The database connection is cached so it's not expensive to call getWriteableDatabase() multiple times.
+        SQLiteDatabase db = getWritableDatabase();
+        db.beginTransaction();
+        try {
+
+            ContentValues values = new ContentValues();
+            values.put(KEY_POST_STATUS,status);
+
+            // This assumes userNames are unique
+            int rows = db.update(TABLE_POSTS, values, KEY_POST_ID +  " = ?", new String[]{postId});
+
+            // Check if update succeeded
+            if (rows == 1) {
+
+                db.setTransactionSuccessful();
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error while trying to add or update user");
+        } finally {
+            db.endTransaction();
+
+        }
+
+    }
     // Get all posts in the database
     public List<Post> getAllPosts() {
         List<Post> posts = new ArrayList<>();
@@ -262,17 +297,24 @@ public class DBHelper extends SQLiteOpenHelper {
                     newPost.interest = cursor.getFloat(cursor.getColumnIndex(KEY_POST_INTEREST));
                     newPost.amountTopay = cursor.getLong(cursor.getColumnIndex(KEY_POST_TOTALAMOUNT));
                     newPost.time = cursor.getInt(cursor.getColumnIndex(KEY_POST_TIME));
-                    String dateOnStr = cursor.getString(cursor.getColumnIndex(KEY_POST_DATEON));
+                    newPost.loanStatus = cursor.getInt(cursor.getColumnIndex(KEY_POST_STATUS));
+                    String dateStartOnStr = cursor.getString(cursor.getColumnIndex(KEY_POST_DATESTARTON));
+                    String dateEndOnStr = cursor.getString(cursor.getColumnIndex(KEY_POST_DATEENDON));
                     String dateStr = cursor.getString(cursor.getColumnIndex(KEY_POST_CREATED));
                     Date date = Constants.getDate(dateStr);
                     if (date != null)
                     {
                         newPost.created_date = date;
                     }
-                    Date dateOn = Constants.getOnlyDate(dateOnStr);
-                    if (dateOn != null)
+                    Date dateStartOn = Constants.getOnlyDate(dateStartOnStr);
+                    if (dateStartOn != null)
                     {
-                        newPost.dateOn = dateOn;
+                        newPost.dateOn = dateStartOn;
+                    }
+                    Date dateEndOn = Constants.getOnlyDate(dateEndOnStr);
+                    if (dateEndOn != null)
+                    {
+                        newPost.endDate = dateEndOn;
                     }
                     posts.add(newPost);
                 } while(cursor.moveToNext());
@@ -297,27 +339,30 @@ public class DBHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(usersSelectQuery, new String[]{String.valueOf(postId)});
         try {
             if (cursor.moveToFirst()) {
-
-
-
-
                     newPost.id = cursor.getString(cursor.getColumnIndex(KEY_POST_ID));
                     newPost.partyName = cursor.getString(cursor.getColumnIndex(KEY_POST_PARTYNAME));
                     newPost.totalAmount = cursor.getLong(cursor.getColumnIndex(KEY_POST_AMOUNT));
                     newPost.interest = cursor.getFloat(cursor.getColumnIndex(KEY_POST_INTEREST));
                     newPost.amountTopay = cursor.getLong(cursor.getColumnIndex(KEY_POST_TOTALAMOUNT));
                     newPost.time = cursor.getInt(cursor.getColumnIndex(KEY_POST_TIME));
-                    String dateOnStr = cursor.getString(cursor.getColumnIndex(KEY_POST_DATEON));
+                    newPost.loanStatus = cursor.getInt(cursor.getColumnIndex(KEY_POST_STATUS));
+                    String dateStartOnStr = cursor.getString(cursor.getColumnIndex(KEY_POST_DATESTARTON));
+                    String dateEndOnStr = cursor.getString(cursor.getColumnIndex(KEY_POST_DATEENDON));
                     String dateStr = cursor.getString(cursor.getColumnIndex(KEY_POST_CREATED));
                     Date date = Constants.getDate(dateStr);
                     if (date != null) {
                         newPost.created_date = date;
                     }
-                    Date dateOn = Constants.getOnlyDate(dateOnStr);
-                    if (dateOn != null)
-                    {
-                        newPost.dateOn = dateOn;
-                    }
+                Date dateStartOn = Constants.getOnlyDate(dateStartOnStr);
+                if (dateStartOn != null)
+                {
+                    newPost.dateOn = dateStartOn;
+                }
+                Date dateEndOn = Constants.getOnlyDate(dateEndOnStr);
+                if (dateEndOn != null)
+                {
+                    newPost.endDate = dateEndOn;
+                }
             }
         } catch (Exception e) {
             Log.d(TAG, "Error while trying to get posts from database");

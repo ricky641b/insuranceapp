@@ -161,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     }
     void initRecyclerView()
     {
-        mPostsAdapter = new PostsAdapter(mPosts);
+        mPostsAdapter = new PostsAdapter(mPosts,getApplicationContext());
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         mPostsRecyclerView.setLayoutManager(mLayoutManager);
         mPostsRecyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -231,5 +231,11 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         } else {
             super.onBackPressed();
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshList();
     }
 }

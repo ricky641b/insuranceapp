@@ -78,11 +78,14 @@ public class CustomDialog extends Dialog implements DatePickerDialog.OnDateSetLi
     {
             if (!amountText.getText().toString().isEmpty())
             {
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(currentSelectedDate);
+                cal.add(Calendar.MONTH,1);
                 RcdAmount rcdAmount = new RcdAmount();
                 rcdAmount.postId = mPost.id;
                 rcdAmount.receivedAmount =  Long.valueOf(amountText.getText().toString());
                 rcdAmount.startDate = currentSelectedDate;
-                rcdAmount.endDate = new Date(currentSelectedDate.getMonth() < 12 ? currentSelectedDate.getYear() : currentSelectedDate.getYear() + 1,currentSelectedDate.getMonth() + 1,currentSelectedDate.getDate());
+                rcdAmount.endDate = cal.getTime();
                 rcdAmount.balanceAmount = mPost.getAmountTopay() - totalAmountReceived - Long.valueOf(amountText.getText().toString());
                 databaseHelper.addRecdAmount(rcdAmount);
                 dismiss();

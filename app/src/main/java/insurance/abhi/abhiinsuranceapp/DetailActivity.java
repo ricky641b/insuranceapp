@@ -14,6 +14,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,11 +92,14 @@ public class DetailActivity extends AppCompatActivity {
         }
         partyName.setText("Party Name: " + post.getPartyName());
         loanDetails.setText("Loan Amount: ₹" + post.getTotalAmount()
-                + "\nInterest: " + post.getInterest()
-                + "%" + "\nTime: " + post.getTime() + " months"
+                + "\nInterest: " + post.getInterest() + "%"
+                + "\nInterest Amount: ₹" + (post.getAmountTopay() - post.getTotalAmount())
+                + "\nTime: " + post.getTime() + " months"
                 + "\nAmount to be paid: ₹" + post.getAmountTopay()
         );
-        createdDate.setText("Start Date: " + post.getSimplifiedOnDate());
+        createdDate.setText("Start Date: " + post.getSimplifiedOnDate(post.getDateOn()) +
+                "\nEnd Date: " + post.getSimplifiedOnDate(post.endDate)
+        );
         initRecyclerView();
     }
 
@@ -118,6 +122,14 @@ public class DetailActivity extends AppCompatActivity {
             linearLayout.setVisibility(View.VISIBLE);
         }
         amountsReceived = totalRecdAmount;
+        if (post.getAmountTopay() - amountsReceived <= 0)
+        {
+            databaseHelper.updatePostStatus(1,post.id);
+        }
+        else
+        {
+            databaseHelper.updatePostStatus(0,post.id);
+        }
         rcdAmountLabel.setText("Total Received Amount: ₹" + totalRecdAmount);
         amountsAdapter.setList(amountsList);
 
@@ -147,14 +159,20 @@ public class DetailActivity extends AppCompatActivity {
     }
     void showDialog()
     {
-        CustomDialog customDialog = new CustomDialog(this,databaseHelper,post,getFragmentManager(),amountsReceived);
-        customDialog.show();
-        customDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                showList();
-            }
-        });
+        if (amountsList.size() <= post.getTime() + 1) {
+            CustomDialog customDialog = new CustomDialog(this, databaseHelper, post, getFragmentManager(), amountsReceived);
+            customDialog.show();
+            customDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    showList();
+                }
+            });
+        }
+        else
+        {
+            Toast.makeText(getApplicationContext(),"You have done all the possible entries",Toast.LENGTH_LONG).show();
+        }
     }
     void deleteEntryConfirmation(final String amountId)
     {

@@ -82,6 +82,10 @@ public class NewEntryActivity extends AppCompatActivity implements com.wdullaer.
     {
         if (validate())
         {
+
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(currentSelectedDate);
+            cal.add(Calendar.MONTH,Integer.valueOf(monthText.getText().toString()));
             float amount = Long.valueOf(amountText.getText().toString());
             float interest = Float.valueOf(interestText.getText().toString());
             int month = Integer.valueOf(monthText.getText().toString());
@@ -95,6 +99,7 @@ public class NewEntryActivity extends AppCompatActivity implements com.wdullaer.
             post.interest = interest;
             post.amountTopay = (long)totalAmount;
             post.dateOn = currentSelectedDate;
+            post.endDate = cal.getTime();
             post.time = Integer.valueOf(monthText.getText().toString());
             addNewEntry(post);
         }

@@ -16,7 +16,9 @@ public class Post {
     public long amountTopay;
     public int time;
     public Date dateOn;
+    public Date endDate;
     public Date created_date;
+    public int loanStatus;
 
     public String getId() {
         return id;
@@ -81,11 +83,11 @@ public class Post {
         return dateFormat.format(created_date);
     }
 
-    public String getSimplifiedOnDate()
+    public String getSimplifiedOnDate(Date date)
     {
         SimpleDateFormat dateFormat = new SimpleDateFormat(
                 "dd MMM, yyyy", Locale.getDefault());
-        return dateFormat.format(dateOn);
+        return dateFormat.format(date);
     }
 
     public Date getDateOn() {
@@ -94,5 +96,21 @@ public class Post {
 
     public void setDateOn(Date dateOn) {
         this.dateOn = dateOn;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
+
+    public int isLoanStatus() {
+        return loanStatus;
+    }
+
+    public void setLoanStatus(int loanStatus) {
+        this.loanStatus = loanStatus;
     }
 }
