@@ -6,10 +6,12 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -17,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import butterknife.BindView;
@@ -26,8 +29,20 @@ import insurance.abhi.abhiinsuranceapp.helperDB.DBHelper;
 import insurance.abhi.abhiinsuranceapp.helpers.RecyclerItemClickListener;
 import insurance.abhi.abhiinsuranceapp.models.Post;
 
-public class MainActivity extends AppCompatActivity {
 
+public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener{
+
+
+
+    List<Post> searchList = new ArrayList<>();
+
+    private static final Comparator<Post> ALPHABETICAL_COMPARATOR = new Comparator<Post>() {
+        @Override
+        public int compare(Post a, Post b) {
+            return a.getPartyName().compareTo(b.getPartyName());
+        }
+    };
+    SearchView searchView;
     @BindView(R.id.postsRecyclerView)
     RecyclerView mPostsRecyclerView;
     List<Post> mPosts = new ArrayList<>();
@@ -61,7 +76,50 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        final MenuItem searchItem = menu.findItem(R.id.action_search);
+        searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        searchView.setOnQueryTextListener(this);
+
         return true;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String query) {
+        // Here is where we are going to implement the filter logic
+
+        if (query.length() > 0) {
+
+            searchList = filter(mPosts, query);;
+            mPostsAdapter.setList(searchList);
+        }
+        else
+        {
+            searchView.setIconified(true);
+            searchList.clear();
+            mPostsAdapter.setList(mPosts);
+
+        }
+       // mPostsAdapter.replaceAll(filteredModelList);
+       // mBinding.recyclerView.scrollToPosition(0);
+        return true;
+
+    }
+
+    private static List<Post> filter(List<Post> posts, String query) {
+        final String lowerCaseQuery = query.toLowerCase();
+
+        final List<Post> filteredModelList = new ArrayList<>();
+        for (Post post: posts) {
+            final String partyName = post.getPartyName();
+            if (partyName.toLowerCase().contains(lowerCaseQuery)) {
+                filteredModelList.add(post);
+            }
+        }
+        return filteredModelList;
+    }
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        return false;
     }
 
     @Override
@@ -163,5 +221,15 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
+    }
+    @Override
+    public void onBackPressed() {
+        if (!searchView.isIconified()) {
+            searchList.clear();
+            mPostsAdapter.setList(mPosts);
+            searchView.setIconified(true);
+        } else {
+            super.onBackPressed();
+        }
     }
 }

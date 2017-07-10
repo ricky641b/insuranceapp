@@ -21,13 +21,16 @@ public class AmountAdapter extends RecyclerView.Adapter<AmountAdapter.ViewHolder
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public TextView rcdAmount;
-        public TextView onDate;
+        public TextView startDate;
+        public TextView endDate;
+        public TextView balanceText;
 
         public ViewHolder(View view) {
             super(view);
             rcdAmount = (TextView) view.findViewById(R.id.amountLabel);
-            onDate = (TextView) view.findViewById(R.id.dateLabel);
-
+            startDate = (TextView) view.findViewById(R.id.startDateLabel);
+            endDate = (TextView) view.findViewById(R.id.endDateLabel);
+            balanceText =  (TextView) view.findViewById(R.id.balanceLabel);
         }
     }
 
@@ -47,9 +50,10 @@ public class AmountAdapter extends RecyclerView.Adapter<AmountAdapter.ViewHolder
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         RcdAmount rcdAmount = mAmountsList.get(position);
-        holder.onDate.setText(rcdAmount.getSimplifiedDate());
+        holder.startDate.setText(rcdAmount.getSimplifiedStartDate());
+        holder.endDate.setText(rcdAmount.getSimplifiedEndDate());
         holder.rcdAmount.setText("₹" + rcdAmount.getReceivedAmount());
-
+        holder.balanceText.setText("₹" + rcdAmount.getBalanceAmount() );
     }
 
     @Override

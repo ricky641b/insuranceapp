@@ -47,12 +47,13 @@ public class DetailActivity extends AppCompatActivity {
     @BindView(R.id.rcdAmountLabel)
     TextView rcdAmountLabel;
 
+
     String idFromIntent;
     DBHelper databaseHelper;
     Post post;
     List<RcdAmount> amountsList = new ArrayList<RcdAmount>();
     AmountAdapter amountsAdapter;
-
+    long amountsReceived = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,7 +95,7 @@ public class DetailActivity extends AppCompatActivity {
                 + "%" + "\nTime: " + post.getTime() + " months"
                 + "\nAmount to be paid: ₹" + post.getAmountTopay()
         );
-        createdDate.setText("Date: " + post.getSimplifiedDate());
+        createdDate.setText("Start Date: " + post.getSimplifiedOnDate());
         initRecyclerView();
     }
 
@@ -113,8 +114,10 @@ public class DetailActivity extends AppCompatActivity {
                 RcdAmount rcdAmount = amountsList.get(i);
                 totalRecdAmount += rcdAmount.getReceivedAmount();
             }
+
             linearLayout.setVisibility(View.VISIBLE);
         }
+        amountsReceived = totalRecdAmount;
         rcdAmountLabel.setText("Total Received Amount: ₹" + totalRecdAmount);
         amountsAdapter.setList(amountsList);
 
@@ -144,7 +147,7 @@ public class DetailActivity extends AppCompatActivity {
     }
     void showDialog()
     {
-        CustomDialog customDialog = new CustomDialog(this,databaseHelper,post);
+        CustomDialog customDialog = new CustomDialog(this,databaseHelper,post,getFragmentManager(),amountsReceived);
         customDialog.show();
         customDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
@@ -166,7 +169,7 @@ public class DetailActivity extends AppCompatActivity {
                 .setMessage("Are you sure you want to delete this entry?")
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        databaseHelper.deleteMainEntry(amountId);
+                        databaseHelper.deleteAmountGot(amountId);
                         showList();
                     }
                 })

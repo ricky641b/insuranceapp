@@ -17,15 +17,38 @@
         android:id="@+id/amountEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="12340.00"
+        android:hint="12340"
         android:inputType="numberDecimal"
-        >
+        />
 
         <requestFocus />
+    <TextView
+        android:id="@+id/dateLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Received On"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    </EditText>
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal"
+    >
+    <EditText
+        android:id="@+id/dateEditText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:inputType="date"
+        android:layout_weight="1"
+    />
+    <Button android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/changeDateButton"
+            android:text="CHANGE"
+            android:textSize="12sp"
+            android:layout_marginBottom="10dp"
+    />
 
-
+    </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

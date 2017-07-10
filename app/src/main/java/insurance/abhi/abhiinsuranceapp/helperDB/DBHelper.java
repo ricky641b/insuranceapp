@@ -38,12 +38,16 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String KEY_POST_INTEREST = "interest";
     private static final String KEY_POST_TOTALAMOUNT = "total_amount";
     private static final String KEY_POST_TIME = "time";
+    private static final String KEY_POST_DATEON = "loan_date";
     private static final String KEY_POST_CREATED = "created_date";
     // Amount Table Columns
     private static final String KEY_AMOUNT_ID = "id";
     private static final String KEY_POST_AMOUNT_ID = "postId";
     private static final String KEY_RECD_AMOUNT = "rcdAmount";
     private static final String KEY_CREATED_ON = "created_date";
+    private static final String KEY_START_DATE = "start_date";
+    private static final String KEY_BALANCE = "balance_amount";
+    private static final String KEY_END_DATE = "end_date";
 
     private static DBHelper sInstance;
 
@@ -85,6 +89,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 KEY_POST_INTEREST + " INTEGER " + "," +
                 KEY_POST_TOTALAMOUNT + " INTEGER " + ", " +
                 KEY_POST_TIME + " INTEGER " + "," +
+                KEY_POST_DATEON + " TEXT " + ", " +
                 KEY_POST_CREATED + " DEFAULT CURRENT_TIMESTAMP " +
                 ")";
 
@@ -93,6 +98,9 @@ public class DBHelper extends SQLiteOpenHelper {
                 KEY_AMOUNT_ID + " INTEGER PRIMARY KEY," +
                 KEY_POST_AMOUNT_ID + " TEXT ," +
                 KEY_RECD_AMOUNT + " INTEGER ," +
+                KEY_START_DATE + " TEXT " + ", " +
+                KEY_END_DATE + " TEXT " + ", " +
+                KEY_BALANCE+ " INTEGER " + ", " +
                 KEY_POST_CREATED + " DEFAULT CURRENT_TIMESTAMP" +
                 ")";
 
@@ -131,6 +139,7 @@ public class DBHelper extends SQLiteOpenHelper {
             values.put(KEY_POST_INTEREST,post.interest);
             values.put(KEY_POST_TOTALAMOUNT,post.amountTopay);
             values.put(KEY_POST_TIME,post.time);
+            values.put(KEY_POST_DATEON,post.getSimplifiedDate());
             values.put(KEY_POST_CREATED, Constants.getDateTime());
 
 
@@ -143,7 +152,7 @@ public class DBHelper extends SQLiteOpenHelper {
             db.endTransaction();
         }
     }
-    public void addRecdAmount(long amountRecd,String postId) {
+    public void addRecdAmount(RcdAmount rcdAmount) {
         // Create and/or open the database for writing
         SQLiteDatabase db = getWritableDatabase();
 
@@ -155,8 +164,11 @@ public class DBHelper extends SQLiteOpenHelper {
            // long userId = addOrUpdatePost(post);
 
             ContentValues values = new ContentValues();
-            values.put(KEY_POST_AMOUNT_ID,postId);
-            values.put(KEY_RECD_AMOUNT,amountRecd);
+            values.put(KEY_POST_AMOUNT_ID, rcdAmount.getPostId());
+            values.put(KEY_RECD_AMOUNT,rcdAmount.receivedAmount);
+            values.put(KEY_START_DATE,rcdAmount.getSimplifiedStartDate());
+            values.put(KEY_END_DATE,rcdAmount.getSimplifiedEndDate());
+            values.put(KEY_BALANCE,rcdAmount.balanceAmount);
             values.put(KEY_CREATED_ON, Constants.getDateTime());
 
             // Notice how we haven't specified the primary key. SQLite auto increments the primary key column.
@@ -188,6 +200,7 @@ public class DBHelper extends SQLiteOpenHelper {
             values.put(KEY_POST_INTEREST,post.interest);
             values.put(KEY_POST_TOTALAMOUNT,post.amountTopay);
             values.put(KEY_POST_TIME,post.time);
+            values.put(KEY_POST_DATEON,post.getSimplifiedOnDate());
             values.put(KEY_POST_CREATED, Constants.getDateTime());
             //values.put(KEY_USER_PROFILE_PICTURE_URL, post.profilePictureUrl);
 
@@ -249,11 +262,17 @@ public class DBHelper extends SQLiteOpenHelper {
                     newPost.interest = cursor.getFloat(cursor.getColumnIndex(KEY_POST_INTEREST));
                     newPost.amountTopay = cursor.getLong(cursor.getColumnIndex(KEY_POST_TOTALAMOUNT));
                     newPost.time = cursor.getInt(cursor.getColumnIndex(KEY_POST_TIME));
+                    String dateOnStr = cursor.getString(cursor.getColumnIndex(KEY_POST_DATEON));
                     String dateStr = cursor.getString(cursor.getColumnIndex(KEY_POST_CREATED));
                     Date date = Constants.getDate(dateStr);
                     if (date != null)
                     {
                         newPost.created_date = date;
+                    }
+                    Date dateOn = Constants.getOnlyDate(dateOnStr);
+                    if (dateOn != null)
+                    {
+                        newPost.dateOn = dateOn;
                     }
                     posts.add(newPost);
                 } while(cursor.moveToNext());
@@ -288,10 +307,16 @@ public class DBHelper extends SQLiteOpenHelper {
                     newPost.interest = cursor.getFloat(cursor.getColumnIndex(KEY_POST_INTEREST));
                     newPost.amountTopay = cursor.getLong(cursor.getColumnIndex(KEY_POST_TOTALAMOUNT));
                     newPost.time = cursor.getInt(cursor.getColumnIndex(KEY_POST_TIME));
+                    String dateOnStr = cursor.getString(cursor.getColumnIndex(KEY_POST_DATEON));
                     String dateStr = cursor.getString(cursor.getColumnIndex(KEY_POST_CREATED));
                     Date date = Constants.getDate(dateStr);
                     if (date != null) {
                         newPost.created_date = date;
+                    }
+                    Date dateOn = Constants.getOnlyDate(dateOnStr);
+                    if (dateOn != null)
+                    {
+                        newPost.dateOn = dateOn;
                     }
             }
         } catch (Exception e) {
@@ -320,6 +345,23 @@ public class DBHelper extends SQLiteOpenHelper {
                     RcdAmount rcdAmount = new RcdAmount();
                     rcdAmount.id = cursor.getString(cursor.getColumnIndex(KEY_AMOUNT_ID));
                     rcdAmount.receivedAmount = cursor.getLong(cursor.getColumnIndex(KEY_RECD_AMOUNT));
+                    rcdAmount.balanceAmount = cursor.getLong(cursor.getColumnIndex(KEY_BALANCE));
+
+
+                    String startDateStr = cursor.getString(cursor.getColumnIndex(KEY_START_DATE));
+                    Date startDate = Constants.getOnlyDate(startDateStr);
+                    if (startDate != null)
+                    {
+                        rcdAmount.startDate = startDate;
+                    }
+
+                    String endDateStr = cursor.getString(cursor.getColumnIndex(KEY_END_DATE));
+                    Date endDate = Constants.getOnlyDate(endDateStr);
+                    if (endDate != null)
+                    {
+                        rcdAmount.endDate = endDate;
+                    }
+
                     String dateStr = cursor.getString(cursor.getColumnIndex(KEY_CREATED_ON));
                     Date date = Constants.getDate(dateStr);
                     if (date != null)

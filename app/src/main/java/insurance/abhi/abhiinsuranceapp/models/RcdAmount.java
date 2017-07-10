@@ -10,8 +10,12 @@ import java.util.Locale;
 
 public class RcdAmount {
     public String id;
+    public String postId;
     public long receivedAmount;
     public Date createdDate;
+    public Date startDate;
+    public Date endDate;
+    public long balanceAmount;
 
     public Date getCreatedDate() {
         return createdDate;
@@ -37,10 +41,56 @@ public class RcdAmount {
         this.receivedAmount = receivedAmount;
     }
 
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
+
+    public long getBalanceAmount() {
+        return balanceAmount;
+    }
+
+    public void setBalanceAmount(long balanceAmount) {
+        this.balanceAmount = balanceAmount;
+    }
+
+    public String getPostId() {
+        return postId;
+    }
+
+    public void setPostId(String postId) {
+        this.postId = postId;
+    }
     public String getSimplifiedDate()
     {
         SimpleDateFormat dateFormat = new SimpleDateFormat(
                 "dd MMM, yyyy hh:mm a", Locale.getDefault());
         return dateFormat.format(createdDate);
     }
+    public String getSimplifiedStartDate()
+    {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(
+                "dd MMM, yyyy", Locale.getDefault());
+        return dateFormat.format(startDate);
+    }
+    public String getSimplifiedEndDate()
+    {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(
+                "dd MMM, yyyy", Locale.getDefault());
+        return dateFormat.format(endDate);
+    }
+
+
 }

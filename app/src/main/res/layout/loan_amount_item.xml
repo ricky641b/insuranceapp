@@ -7,8 +7,26 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:id="@+id/startDateLabel"
+        android:textSize="12sp"
+        android:padding="2dp"
+        android:gravity="center_horizontal"
+        tools:text="HELLO"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:id="@+id/endDateLabel"
+        android:textSize="12sp"
+        android:padding="2dp"
+        android:gravity="center_horizontal"
+        tools:text="HELLO"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:id="@+id/amountLabel"
-        android:textSize="15sp"
+        android:textSize="12sp"
         android:padding="2dp"
         android:gravity="center_horizontal"
         tools:text="HELLO"/>
@@ -17,9 +35,9 @@
         android:layout_weight="1"
         android:layout_height="wrap_content"
         tools:text="HELLO"
-        android:id="@+id/dateLabel"
+        android:id="@+id/balanceLabel"
         android:gravity="center_horizontal"
-        android:textSize="14sp"
+        android:textSize="12sp"
         android:padding="2dp"
         />
 </LinearLayout>

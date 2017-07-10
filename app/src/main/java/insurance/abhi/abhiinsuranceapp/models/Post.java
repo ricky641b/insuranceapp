@@ -13,8 +13,9 @@ public class Post {
     public String partyName;
     public long totalAmount;
     public float interest;
-    public double amountTopay;
+    public long amountTopay;
     public int time;
+    public Date dateOn;
     public Date created_date;
 
     public String getId() {
@@ -65,7 +66,7 @@ public class Post {
         this.created_date = created_date;
     }
 
-    public double getAmountTopay() {
+    public long getAmountTopay() {
         return amountTopay;
     }
 
@@ -78,5 +79,20 @@ public class Post {
         SimpleDateFormat dateFormat = new SimpleDateFormat(
                 "dd MMM, yyyy hh:mm a", Locale.getDefault());
         return dateFormat.format(created_date);
+    }
+
+    public String getSimplifiedOnDate()
+    {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(
+                "dd MMM, yyyy", Locale.getDefault());
+        return dateFormat.format(dateOn);
+    }
+
+    public Date getDateOn() {
+        return dateOn;
+    }
+
+    public void setDateOn(Date dateOn) {
+        this.dateOn = dateOn;
     }
 }

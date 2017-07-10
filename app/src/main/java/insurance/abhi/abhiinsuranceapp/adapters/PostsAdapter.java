@@ -48,8 +48,12 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
     public void onBindViewHolder(ViewHolder holder, int position) {
         Post post = postsList.get(position);
         holder.partyName.setText("Party Name: " + post.getPartyName());
-        holder.loanDetails.setText("Loan Amount: ₹" + post.getTotalAmount() + "\nInterest: " + post.getInterest() + "%" + "\nTime: " + post.getTime() + " months");
-        holder.createdDate.setText("Date: " + post.getSimplifiedDate());
+        holder.loanDetails.setText("Loan Amount: ₹" + post.getTotalAmount()
+                + "\nInterest: " + post.getInterest() + "%"
+                + "\nTime: " + post.getTime() + " months"
+                + "\nTotal amount to pay: ₹" + post.getAmountTopay()
+        );
+        holder.createdDate.setText("Start Date: " + post.getSimplifiedOnDate());
     }
 
     @Override

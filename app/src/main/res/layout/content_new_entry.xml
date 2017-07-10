@@ -10,6 +10,30 @@
     tools:context="insurance.abhi.abhiinsuranceapp.NewEntryActivity"
     tools:showIn="@layout/activity_new_entry">
 
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal"
+    >
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:padding="5dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content">
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/dateEditText"
+                android:inputType="date"
+                android:hint="@string/date_placeholder"
+            />
+        </android.support.design.widget.TextInputLayout>
+        <Button android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CHANGE"
+                android:id="@+id/changeDateButton"
+                android:layout_marginTop="10dp"
+        />
+    </LinearLayout>
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
         android:padding="5dp"
@@ -23,6 +47,7 @@
             <requestFocus />
             </EditText>
     </android.support.design.widget.TextInputLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

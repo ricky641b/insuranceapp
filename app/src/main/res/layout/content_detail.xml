@@ -55,22 +55,39 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Received Amount"
+            android:text="Start Date"
             android:layout_weight="1"
-            android:textSize="17sp"
+            android:textSize="14sp"
             android:textStyle="bold"
             android:gravity="center_horizontal"
             />
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Date"
+            android:text="End Date"
             android:layout_weight="1"
-            android:textSize="17sp"
+            android:textSize="14sp"
             android:textStyle="bold"
-
             android:gravity="center_horizontal"
             />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Received Amount"
+            android:layout_weight="1"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:gravity="center_horizontal"
+        />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Balance"
+            android:layout_weight="1"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:gravity="center_horizontal"
+        />
     </LinearLayout>
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
