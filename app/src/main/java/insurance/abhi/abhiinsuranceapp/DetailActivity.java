@@ -17,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
@@ -159,8 +160,13 @@ public class DetailActivity extends AppCompatActivity {
     }
     void showDialog()
     {
-        if (amountsList.size() <= post.getTime() + 1) {
-            CustomDialog customDialog = new CustomDialog(this, databaseHelper, post, getFragmentManager(), amountsReceived);
+        if (amountsList.size() <= post.getTime()) {
+
+            Date endDate = null;
+            if (amountsList.size()>0) {
+                endDate = amountsList.get(amountsList.size() - 1).endDate;
+            }
+            CustomDialog customDialog = new CustomDialog(this, databaseHelper, post, getFragmentManager(), amountsReceived,endDate);
             customDialog.show();
             customDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                 @Override
@@ -171,7 +177,7 @@ public class DetailActivity extends AppCompatActivity {
         }
         else
         {
-            Toast.makeText(getApplicationContext(),"You have done all the possible entries",Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(),"No more entries possible",Toast.LENGTH_LONG).show();
         }
     }
     void deleteEntryConfirmation(final String amountId)

@@ -273,15 +273,15 @@ public class DBHelper extends SQLiteOpenHelper {
 
     }
     // Get all posts in the database
-    public List<Post> getAllPosts() {
+    public List<Post> getAllPosts(boolean showCompleted) {
         List<Post> posts = new ArrayList<>();
 
         // SELECT * FROM POSTS
         // LEFT OUTER JOIN USERS
         // ON POSTS.KEY_POST_USER_ID_FK = USERS.KEY_USER_ID
         String POSTS_SELECT_QUERY =
-                String.format("SELECT * FROM %s",
-                        TABLE_POSTS);
+                String.format("SELECT * FROM %s where %s = %s",
+                        TABLE_POSTS,KEY_POST_STATUS,showCompleted ? 1 : 0);
 
         // "getReadableDatabase()" and "getWriteableDatabase()" return the same object (except under low
         // disk space scenarios)

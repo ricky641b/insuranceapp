@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Abhi\'s Loan App</string>
+    <string name="app_name">Loan Management App</string>
     <string name="action_backup">Backup/Restore</string>
     <string name="action_search">Search</string>
     <string name="title_activity_new_entry">New Entry</string>

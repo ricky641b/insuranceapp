@@ -33,7 +33,7 @@ import insurance.abhi.abhiinsuranceapp.models.Post;
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener{
 
 
-
+    private Menu menu;
     List<Post> searchList = new ArrayList<>();
 
     private static final Comparator<Post> ALPHABETICAL_COMPARATOR = new Comparator<Post>() {
@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     List<Post> mPosts = new ArrayList<>();
     PostsAdapter mPostsAdapter;
     DBHelper databaseHelper;
+    boolean showCompleted = false;
     private static int REQUEST_CODE = 1;
     private static int DETAIL_ACTIVITY_REQUEST_CODE = 2;
     @Override
@@ -79,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         final MenuItem searchItem = menu.findItem(R.id.action_search);
         searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
         searchView.setOnQueryTextListener(this);
-
+        this.menu = menu;
         return true;
     }
 
@@ -134,7 +135,12 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             launchBackupActivity();
             return true;
         }
-
+        else if (id == R.id.action_status)
+        {
+            showCompleted = !showCompleted;
+            refreshList();
+            updateMenuTitle();
+        }
         return super.onOptionsItemSelected(item);
     }
     void launchNewEntryActivity()
@@ -156,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     }
     void refreshList()
     {
-        mPosts = databaseHelper.getAllPosts();
+        mPosts = databaseHelper.getAllPosts(showCompleted);
         mPostsAdapter.setList(mPosts);
     }
     void initRecyclerView()
@@ -237,5 +243,17 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     protected void onResume() {
         super.onResume();
         refreshList();
+
+    }
+    void updateMenuTitle()
+    {
+        if (menu != null) {
+            MenuItem menuItem = menu.findItem(R.id.action_status);
+            if (showCompleted) {
+                menuItem.setTitle("Show Pending");
+            } else {
+                menuItem.setTitle("Show History");
+            }
+        }
     }
 }

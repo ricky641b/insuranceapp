@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
@@ -45,8 +46,8 @@ public class CustomDialog extends Dialog implements DatePickerDialog.OnDateSetLi
     FragmentManager fgMananger;
     Post mPost;
     long totalAmountReceived = 0;
-
-    public CustomDialog(Activity activity, DBHelper dbHelper, Post post, FragmentManager fg,long totalAmountReceived) {
+    Date prevEndDate = null;
+    public CustomDialog(Activity activity, DBHelper dbHelper, Post post, FragmentManager fg,long totalAmountReceived,Date previousEndDate) {
         super(activity);
         // TODO Auto-generated constructor stub
         this.activity = activity;
@@ -54,6 +55,7 @@ public class CustomDialog extends Dialog implements DatePickerDialog.OnDateSetLi
         mPost = post;
         fgMananger = fg;
         this.totalAmountReceived = totalAmountReceived;
+        prevEndDate = previousEndDate;
     }
 
     @Override
@@ -76,19 +78,30 @@ public class CustomDialog extends Dialog implements DatePickerDialog.OnDateSetLi
 
     @OnClick(R.id.add_button) void addClicked()
     {
+
             if (!amountText.getText().toString().isEmpty())
             {
-                Calendar cal = Calendar.getInstance();
-                cal.setTime(currentSelectedDate);
-                cal.add(Calendar.MONTH,1);
-                RcdAmount rcdAmount = new RcdAmount();
-                rcdAmount.postId = mPost.id;
-                rcdAmount.receivedAmount =  Long.valueOf(amountText.getText().toString());
-                rcdAmount.startDate = currentSelectedDate;
-                rcdAmount.endDate = cal.getTime();
-                rcdAmount.balanceAmount = mPost.getAmountTopay() - totalAmountReceived - Long.valueOf(amountText.getText().toString());
-                databaseHelper.addRecdAmount(rcdAmount);
-                dismiss();
+                if (prevEndDate != null && currentSelectedDate.compareTo(prevEndDate)<0)
+                {
+                    Toast.makeText(activity.getApplicationContext(),"Invalid Date",Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    Calendar cal = Calendar.getInstance();
+                    cal.setTime(currentSelectedDate);
+                    cal.add(Calendar.MONTH, 1);
+                    RcdAmount rcdAmount = new RcdAmount();
+                    rcdAmount.postId = mPost.id;
+                    rcdAmount.receivedAmount = Long.valueOf(amountText.getText().toString());
+                    rcdAmount.startDate = currentSelectedDate;
+                    rcdAmount.endDate = cal.getTime();
+                    rcdAmount.balanceAmount = mPost.getAmountTopay() - totalAmountReceived - Long.valueOf(amountText.getText().toString());
+                    databaseHelper.addRecdAmount(rcdAmount);
+                    dismiss();
+                }
+            }
+            else
+            {
+                Toast.makeText(activity.getApplicationContext(),"Amount field is empty",Toast.LENGTH_SHORT).show();
             }
     }
     @OnClick(R.id.cancel_button) void cancelClicked()
@@ -113,7 +126,6 @@ public class CustomDialog extends Dialog implements DatePickerDialog.OnDateSetLi
                 now.get(Calendar.MONTH),
                 now.get(Calendar.DAY_OF_MONTH)
         );
-
         dpd.show(fgMananger,"DateDialogNew");
     }
 
