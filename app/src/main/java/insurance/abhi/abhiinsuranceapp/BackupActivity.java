@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.cloudrail.si.CloudRail;
 import com.cloudrail.si.services.Dropbox;
+import com.cloudrail.si.types.CloudMetaData;
 
 import java.io.FileInputStream;
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ public class BackupActivity extends AppCompatActivity {
     ListView filePathListView;
 
     List<String> files = new ArrayList<>();
+    Dropbox service;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,6 +44,11 @@ public class BackupActivity extends AppCompatActivity {
         checkPermission();
         restoreFromFolder();
         CloudRail.setAppKey("5960e2b9435ed97ff95c0276");
+        service = new Dropbox(
+                getApplicationContext(),
+                "tqi92xvjokofrb7",
+                "v4faixtkr99p8kp"
+        );
     }
 
     @OnClick(R.id.backupfolder)void backupFolder()
@@ -55,6 +62,11 @@ public class BackupActivity extends AppCompatActivity {
     @OnClick(R.id.backupDropbox) void backupToDropbox()
     {
         new DropboxUploadTask().execute();
+        //uploadBackupFile();
+    }
+    @OnClick(R.id.restoreDropbox) void restoreFromDropbox()
+    {
+        fetchFilesFromDropbox();
     }
     @OnClick(R.id.restorefolder) void restoreFromFolder()
     {
@@ -173,14 +185,19 @@ public class BackupActivity extends AppCompatActivity {
                         "v4faixtkr99p8kp"
                 );
                 String path =  DBBackup.exportDB(getApplicationContext());
-                FileInputStream backupFileStream = DBBackup.getInputStream(getApplicationContext());
-                if(backupFileStream!=null) {
-                    service.upload(
-                            path,
-                            backupFileStream,
-                            1024L,
-                            true
-                    );
+                try {
+                    FileInputStream backupFileStream = DBBackup.getInputStream(getApplicationContext());
+                    if (backupFileStream != null) {
+                        service.upload(
+                                path,
+                                backupFileStream,
+                                1024L,
+                                true
+                        );
+                    }
+                }catch (Exception e)
+                {
+                    e.printStackTrace();
                 }
             }
             return null;
@@ -189,7 +206,93 @@ public class BackupActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            Log.d("DONE","DONE");
+
         }
+
+        @Override
+        protected void finalize() throws Throwable {
+            super.finalize();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getApplicationContext(),"Backup file uploaded to dropbox",Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
+    void uploadBackupFile()
+    {
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    if (!service.exists("/" + DBBackup.backupName)) {
+                        service.createFolder("/" + DBBackup.backupName);
+                    }
+                    String path = DBBackup.exportDB(getApplicationContext());
+                    FileInputStream backupFileStream = DBBackup.getInputStream(getApplicationContext());
+                    if (backupFileStream != null) {
+                        service.upload(
+                                path,
+                                backupFileStream,
+                                1024L,
+                                true
+                        );
+
+                    }
+
+                } catch (Exception e) {
+                    Log.e("ERROR",e.getLocalizedMessage());
+                } finally {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getApplicationContext(),"Backup file uploaded to dropbox",Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }
+        }.start();
+
+    }
+    void fetchFilesFromDropbox()
+    {
+        new Thread(){
+            @Override
+            public void run() {
+                if (service.exists("/" + DBBackup.backupName))
+                {
+                    final List<CloudMetaData> result = service.getChildren(
+                            "/" + DBBackup.backupName
+                    );
+                    if (result.size() == 0)
+                    {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getApplicationContext(),"No backup files found on dropbox",Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                    else
+                    {
+                        for (CloudMetaData cloudFile:result)
+                        {
+                            System.out.print(cloudFile.getName());
+                            //Log.d("NAME",cloudFile.getName());
+                           // InputStream file = service.download("/" + DBBackup.backupName + "/" + cloudFile.getName());
+
+                        }
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getApplicationContext(),result.size() + " backup files have been downloaded from Dropbox. Tap on any files from the list to restore it ",Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                }
+            }
+        }.start();
     }
 }

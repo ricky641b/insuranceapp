@@ -53,7 +53,7 @@ public class NewEntryActivity extends AppCompatActivity {
             float interest = Float.valueOf(interestText.getText().toString());
             float month = Float.valueOf(monthText.getText().toString());
 
-            double interestAmount = amount * (interest / 100.0) * (month / 12.0);
+            double interestAmount = amount * (interest / 100.0) * (month);
 
             double totalAmount = interestAmount + amount;
 
@@ -70,7 +70,7 @@ public class NewEntryActivity extends AppCompatActivity {
             float interest = Float.valueOf(interestText.getText().toString());
             float month = Float.valueOf(monthText.getText().toString());
 
-            double interestAmount = amount * (interest / 100.0) * (month / 12.0);
+            double interestAmount = amount * (interest / 100.0) * (month);
 
             double totalAmount = interestAmount + amount;
             Post post = new Post();

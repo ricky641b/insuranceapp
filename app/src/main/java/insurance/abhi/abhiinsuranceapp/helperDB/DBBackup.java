@@ -7,6 +7,9 @@ import android.util.Log;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +22,7 @@ import insurance.abhi.abhiinsuranceapp.helpers.Constants;
 
 public class DBBackup {
     public static String backupName = "Abhi_App_Backup";
-    private static File BASE_BACKUP_PATH = Environment.getExternalStoragePublicDirectory
+    public static File BASE_BACKUP_PATH = Environment.getExternalStoragePublicDirectory
             (DBBackup.backupName);
     private static boolean operationStatus = true;
     private static String appName = "Abhi's Loan App";
@@ -43,7 +46,7 @@ public class DBBackup {
                         dst.transferFrom(src, 0, src.size());
                         src.close();
                         dst.close();
-                        return "/" + backupDBPath;
+                        return "/" + backupName + "/" + backupDBPath;
                         //Toast.makeText(getApplicationContext(), "Backup is successful to SD card", Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -118,5 +121,37 @@ public class DBBackup {
             Log.e("Error",e.getLocalizedMessage());
         }
         return false;
+    }
+    public static void saveDropboxFileToFolder(InputStream in, String fileName)
+    {
+        File file = new File(BASE_BACKUP_PATH,fileName);
+        OutputStream out = null;
+
+        try {
+            out = new FileOutputStream(file);
+            byte[] buf = new byte[1024];
+            int len;
+            while((len=in.read(buf))>0){
+                out.write(buf,0,len);
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
+            // Ensure that the InputStreams are closed even if there's an exception.
+            try {
+                if ( out != null ) {
+                    out.close();
+                }
+
+                // If you want to close the "in" InputStream yourself then remove this
+                // from here but ensure that you close it yourself eventually.
+                in.close();
+            }
+            catch ( IOException e ) {
+                e.printStackTrace();
+            }
+        }
     }
 }
