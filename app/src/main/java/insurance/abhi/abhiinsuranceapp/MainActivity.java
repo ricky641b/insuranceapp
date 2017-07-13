@@ -17,6 +17,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
+
+import com.crashlytics.android.Crashlytics;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -28,6 +31,7 @@ import insurance.abhi.abhiinsuranceapp.adapters.PostsAdapter;
 import insurance.abhi.abhiinsuranceapp.helperDB.DBHelper;
 import insurance.abhi.abhiinsuranceapp.helpers.RecyclerItemClickListener;
 import insurance.abhi.abhiinsuranceapp.models.Post;
+import io.fabric.sdk.android.Fabric;
 
 
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener{
@@ -45,6 +49,11 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     SearchView searchView;
     @BindView(R.id.postsRecyclerView)
     RecyclerView mPostsRecyclerView;
+
+    @BindView(R.id.empty_view)
+    TextView emptyView;
+
+
     List<Post> mPosts = new ArrayList<>();
     PostsAdapter mPostsAdapter;
     DBHelper databaseHelper;
@@ -54,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -141,6 +151,10 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             refreshList();
             updateMenuTitle();
         }
+        else if (id == R.id.action_support)
+        {
+            launchSupportActivity();
+        }
         return super.onOptionsItemSelected(item);
     }
     void launchNewEntryActivity()
@@ -153,6 +167,11 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         Intent newIntent = new Intent(MainActivity.this,BackupActivity.class);
         startActivityForResult(newIntent,REQUEST_CODE);
     }
+    void launchSupportActivity()
+    {
+        Intent newIntent = new Intent(MainActivity.this,SupportActivity.class);
+        startActivityForResult(newIntent,REQUEST_CODE);
+    }
     void initDB()
     {
         // Get singleton instance of database
@@ -163,6 +182,16 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     void refreshList()
     {
         mPosts = databaseHelper.getAllPosts(showCompleted);
+        if (mPosts.isEmpty())
+        {
+            emptyView.setVisibility(View.VISIBLE);
+            mPostsRecyclerView.setVisibility(View.GONE);
+        }
+        else
+        {
+            emptyView.setVisibility(View.GONE);
+            mPostsRecyclerView.setVisibility(View.VISIBLE);
+        }
         mPostsAdapter.setList(mPosts);
     }
     void initRecyclerView()

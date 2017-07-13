@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Loan Management App</string>
+    <string name="app_name">Loan Calculator &amp; Management App</string>
     <string name="action_backup">Backup/Restore</string>
     <string name="action_search">Search</string>
     <string name="title_activity_new_entry">New Entry</string>
@@ -10,4 +10,8 @@
     <string name="time_placeholder">Time (months)</string>
     <string name="calculate">Calculate</string>
     <string name="title_activity_detail">DetailActivity</string>
+    <string name="no_entries_text">No Entries\nPress add button to add new entry</string>
+    <string name="no_received_text">Press add button to add new entry</string>
+    <string name="support_text">We would love your feedback.\nPlease send us your feedback at support@ubiquitytechsol.com\n\nor </string>
+    <string name="mail">support@ubiquitytechsol.com</string>
 </resources>

@@ -49,6 +49,8 @@ public class DetailActivity extends AppCompatActivity {
     @BindView(R.id.rcdAmountLabel)
     TextView rcdAmountLabel;
 
+    @BindView(R.id.empty_view)
+    TextView emptyView;
 
     String idFromIntent;
     DBHelper databaseHelper;
@@ -111,9 +113,11 @@ public class DetailActivity extends AppCompatActivity {
         if (amountsList.size()==0)
         {
             linearLayout.setVisibility(View.GONE);
+            emptyView.setVisibility(View.VISIBLE);
         }
         else
         {
+
             for (int i=0;i<amountsList.size();i++)
             {
                 RcdAmount rcdAmount = amountsList.get(i);
@@ -121,6 +125,7 @@ public class DetailActivity extends AppCompatActivity {
             }
 
             linearLayout.setVisibility(View.VISIBLE);
+            emptyView.setVisibility(View.GONE);
         }
         amountsReceived = totalRecdAmount;
         if (post.getAmountTopay() - amountsReceived <= 0)
